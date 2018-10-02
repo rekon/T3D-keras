@@ -1,7 +1,10 @@
 # T3D-keras
 A Temporal 3D for action recognition in videos
 
-This code is converted in **keras** for transfer learning as described in the paper.
+![T3D Block Diagram](./model_block_diagram.png "T3D")
+
+
+This code is written in **keras** for transfer learning as described in the paper.
 
 **[Temporal 3D ConvNets: New Architecture and Transfer Learning for Video Classification](https://arxiv.org/abs/1711.08200)**,
 <br>

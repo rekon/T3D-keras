@@ -17,7 +17,7 @@ This code is written in **keras** for transfer learning as described in the pape
 [Luc Van Gool](https://ic.epfl.ch/page-62394-en.html)
 <br>
 
-Original code for the paper is written in **PyTorch** [here](https://github.com/MohsenFayyaz89/T3D)
+Original code for this paper is written in **PyTorch**, [here](https://github.com/MohsenFayyaz89/T3D)
 
 ```
 @ARTICLE{2017arXiv171108200D,
@@ -36,3 +36,6 @@ archivePrefix = "arXiv",
 }
 
 ```
+
+### Dataset
+[UCF50](http://crcv.ucf.edu/data/UCF50.rar) video dataset was used

@@ -26,38 +26,36 @@ def get_video_frames(src, fpv, frame_height, frame_width):
     # When everything done, release the capture
     cap.release()
 
-    rnd_idx = random.randint(5,len(frames)-5)
-    rnd_frame = frames[rnd_idx]
-    rnd_frame = cv2.resize(rnd_frame,(224,224)) #Needed for Densenet121-2d
-
-    # Return fpv=10 frames
+    # Returning fpv=10 frames
     step = len(frames)//fpv
     avg_frames = frames[::step]
     avg_frames = avg_frames[:fpv]
-    avg_resized_frames = []
+    avg_resized_frames_2d = []
+    avg_resized_frames_3d = []
     for af in avg_frames:
-        rsz_f = cv2.resize(af, (frame_width, frame_height))
-        avg_resized_frames.append(rsz_f)
-    return np.asarray(rnd_frame)/255.0,np.asarray(avg_resized_frames)
+        rsz_f_3d = cv2.resize(af, (frame_width, frame_height))
+        rsz_f_2d = cv2.resize(af, (224, 224))
+        avg_resized_frames_2d.append(rsz_f_2d)
+        avg_resized_frames_3d.append(rsz_f_3d)
+    return np.asarray(avg_resized_frames_2d)/255.0, np.asarray(avg_resized_frames_3d)/255.0
 
 
 def get_video_and_label(index, data, frames_per_video, frame_height, frame_width):
     # Read clip and appropiately send the sports' class
-    frame, clip = get_video_frames(os.path.join(
+    frames, clip = get_video_frames(os.path.join(
         ROOT_PATH, data['path'].values[index].strip()), frames_per_video, frame_height, frame_width)
     sport_class = data['class'].values[index]
 
-    frame = np.expand_dims(frame, axis=0)
     clip = np.expand_dims(clip, axis=0)
 
     # print('Frame shape',frame.shape)
     # print('Clip shape',clip.shape)
 
 
-    return frame, clip, sport_class
+    return frames, clip, sport_class
 
 
-def video_gen(data, frames_per_video, frame_height, frame_width, channels, num_classes, batch_size=4):
+def video_gen(data, frames_per_video, frame_height, frame_width, channels, num_classes, batch_size=1):
     while True:
         # Randomize the indices to make an array
         indices_arr = np.random.permutation(data.count()[0])
@@ -66,21 +64,21 @@ def video_gen(data, frames_per_video, frame_height, frame_width, channels, num_c
             current_batch = indices_arr[batch:(batch + batch_size)]
 
             # initializing the arrays, x_train and y_train
-            clip = np.empty([0, frames_per_video, frame_height, frame_width, channels], dtype=np.float32)
-            frame = np.empty([0, 224, 224, 3], dtype=np.float32)
+            input_3d = np.empty([0, frames_per_video, frame_height, frame_width, channels], dtype=np.float32)
+            input_2d = np.empty([0, 224, 224, 3], dtype=np.float32)
 
             y_train = np.empty([0], dtype=np.int32)
 
             for i in current_batch:
                 # get frames and its corresponding color for an traffic light
-                single_frame, single_clip, sport_class = get_video_and_label(
+                frames, single_clip, sport_class = get_video_and_label(
                     i, data, frames_per_video, frame_height, frame_width)
 
                 # Appending them to existing batch
-                frame = np.append(frame, single_frame, axis=0)
-                clip = np.append(clip, single_clip, axis=0)
+                input_2d = np.append(input_2d, frames, axis=0)
+                input_3d = np.append(input_3d, single_clip, axis=0)
 
                 y_train = np.append(y_train, [sport_class])
             y_train = to_categorical(y_train, num_classes=num_classes)
 
-            yield ([frame, clip], y_train)
+            yield ([input_2d, input_3d], y_train)

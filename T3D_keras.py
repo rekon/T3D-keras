@@ -89,7 +89,7 @@ def DenseNet3D(input_shape, growth_rate=32, block_config=(6, 12, 24, 16),
         layer.trainable = False
 
     # Configure the 2D CNN to take batches of pictures
-    inp_2d_batch = (Input(shape=(input_shape[0],224,224,3), name='2d_input_batch'))
+    inp_2d_batch = (Input(shape=input_shape, name='2d_input_batch'))
     batch_densenet = TimeDistributed(batch_densenet)(inp_2d_batch)
     batch_densenet = Model(inputs=inp_2d_batch, outputs=batch_densenet)
     #-----------------------------------------------------------------
